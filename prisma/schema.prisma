@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
+  name        String?
+  password    String?
+  posts       Post[]
+  imageFileId Int?
+  imageFile   File?   @relation(fields: [imageFileId], references: [id])
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?
+  published   Boolean? @default(true)
+  author      User?    @relation(fields: [authorId], references: [id])
+  authorId    Int?
+  attachments File?    @relation(fields: [fileId], references: [id])
+  fileId      Int
+}
+
+model File {
+  id       Int    @id @default(autoincrement())
+  filename String
+  filecontent  String
+  mimeType    String
+
+  User User[]
+  Post Post[]
+}
+
+// model Filecontent {
+//   id      Int   @id @default(autoincrement())
+//   content Bytes
+//   file    File  @relation(fields: [fileId], references: [id])
+//   fileId  Int   @unique
+// }
+// fileContent Filecontent?
+
+// model User {
+//   id       Int     @id @default(autoincrement())
+//   email    String  @unique
+//   name     String?
+//   password String?
+//   file     File[]
+
+//   posts Post[]
+// }
+
+// model Post {
+//   id        Int      @id @default(autoincrement())
+//   title     String
+//   content   String?
+//   published Boolean? @default(true)
+//   author    User?    @relation(fields: [authorId], references: [id])
+//   fileId    Int?
+//   authorId  Int?
+//   file File[]
+// }
+
+// model File {
+//   id          Int          @id @default(autoincrement())
+//   filename    String
+//   fileContent Filecontent?
+//   user        User         @relation(fields: [fileId], references: [id])
+//   fileId      Int          @unique
+
+//   //  user  User?    @relation(fields: [use
+//   userId Int? @unique
+//   //  posts Post[] @relation("PostFile")
+//   // mimetype  String
+//   // path      String
+//   // user      User?
+// }
+
+// model Filecontent {
+//   id      Int   @id @default(autoincrement())
+//   content Bytes
+//   file    File  @relation(fields: [filedId], references: [id])
+//   filedId Int   @unique
+// }
+
+// enum Roles{
+//   User
+//   Admin
+// }
