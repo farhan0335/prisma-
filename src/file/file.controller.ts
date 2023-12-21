@@ -1,24 +1,37 @@
-import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Res, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { Response } from 'express';
 import { FileService } from './file.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('file')
 export class FileController {
     constructor(private readonly fileService: FileService) {}
 
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
-    try {
-      const createdFile = await this.fileService.uploadFile(file);
-
-      return { message: 'File uploaded successfully', fileId: createdFile.id };
-    } catch (error) {
-      return { message: 'File upload failed', error: error.message };
+ 
+    @Post('upload/:userId')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('userId', ParseIntPipe) userId: number): Promise<any> {
+      try {
+        const createdFile = await this.fileService.uploadFile(file, userId);
+        return { message: 'File uploaded successfully', fileId: createdFile.id };
+      } catch (error) {
+        return { message: 'File upload failed', error: error.message };
+      }
     }
-  }
+   
+    @Post('uploadPost/:postId')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadPost(@UploadedFile() file: Express.Multer.File, @Param('postId', ParseIntPipe) postId: number): Promise<any> {
+      try {
+        const createdFile = await this.fileService.uploadFile(file, postId);
+        return { message: 'File uploaded successfully', fileId: createdFile.id };
+      } catch (error) {
+        return { message: 'File upload failed', error: error.message };
+      }
+    }
+  
+  
   @Get('getfile/:id')
   async getFileById(@Param('id') id: number, @Res() res: Response): Promise<void> {
     try {
@@ -51,8 +64,9 @@ export class FileController {
             res.set({
               'Content-Type': file.mimeType || 'application/octet-stream',
               'Content-Disposition': `attachment; filename=${file.filename}`,
-
             })
+
+            
 
 
 
@@ -89,6 +103,19 @@ export class FileController {
       //   // 'Content-Disposition': `attachment; filename=${file.filename}`,
       //   'Content-Type': 'image/jpg'
       // });
+
+
+
+      // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
+  //   try {
+  //     const createdFile = await this.fileService.uploadFile(file);
+
+  //     return { message: 'File uploaded successfully', fileId: createdFile.id };
+  //   } catch (error) {
+  //     return { message: 'File upload failed', error: error.message };
+  //   }
+  // }
 
 
 
